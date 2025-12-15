@@ -49,12 +49,19 @@ app.config['SECRET_KEY'] = 'renal-ai-final-fix-v12'
 
 # 1. Check if Azure has injected the connection string automatically
 # The "Web App + Database" wizard creates this specific variable:
+# =======================================================
+# 2. DATABASE CONFIGURATION (SMART CLOUD FIX)
+# =======================================================
+
+# 1. Check if Azure has injected the connection string automatically
 azure_connection_string = os.environ.get('AZURE_POSTGRESQL_CONNECTIONSTRING')
 
 if azure_connection_string:
     # WE ARE ON AZURE
-    # Azure format is slightly different, we convert it for SQLAlchemy if needed
-    # But usually, the string provided by the wizard works directly.
+    # CRITICAL FIX: Azure often sends 'postgres://' but SQLAlchemy needs 'postgresql://'
+    if azure_connection_string.startswith("postgres://"):
+        azure_connection_string = azure_connection_string.replace("postgres://", "postgresql://", 1)
+        
     app.config['SQLALCHEMY_DATABASE_URI'] = azure_connection_string
     print("✅ Connected to Azure PostgreSQL!")
 else:
@@ -63,7 +70,6 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///renal_v12_stable.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 # ⚠️ UPDATE THESE WITH YOUR VALID CREDENTIALS ⚠️
 AZURE_API_KEY = "CoPHO7jDoUKoXD6zsLJQlj4FkLa1sLgGdpTnh5CTmqIE9KkJlFgIJQQJ99BHACL93NaXJ3w3AAABACOGIGtF" 
 AZURE_API_BASE = "https://thisisoajo.openai.azure.com/"
@@ -1184,4 +1190,5 @@ def analyze_fruit():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+
     app.run(debug=True, port=5000)
