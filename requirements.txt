@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+flask_login
+openai
+azure-cognitiveservices-vision-customvision
+msrest
+psycopg2-binary
+gunicorn
